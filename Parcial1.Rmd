@@ -1,14 +1,105 @@
 ---
-title: "Parcial1"
+title: "Parcial 1"
+author: "Hector Luis Blandón Espitia- Simulación y teoría de la desición"
 output: html_document
-author:"Hector Luis Blandón"
-editor_options:
-  markdown:
-    mode: gfm
 date: '2022-03-24'
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(KernSmooth)
+library(quantmod)
+library(moments)
 ```
+
+## 1. La tabla mostrada contiene valores de población, en cientos de miles, de las diez ciudades más pobladas de cuatro países en el año 1967:
+
+Table: **Datos**
+
+**Argentina**| **EE.UU** | **Holanda** | **Japón** |
+|:------:|:------:|:------:|:------:|
+29.66 | 77.81 | 8.68 | 110.21 |
+7.61 | 35.50 | 7.31 | 32.14 |
+6.35 | 24.79 | 6.02 | 18.88 |
+4.10 | 20.02 | 2.64 | 16.38 |
+3.8 | 16.70 | 1.75 | 13.37 |
+2.75 | 9.39 | 1.72 | 11.92 |
+2.70 | 9.38 | 1.51 | 10.71 |
+2.69 | 8.76 | 1.42 | 7.8 |
+2.51 | 7.63 | 1.31 | 7.7 |
+2.44 | 7.5 | 1.29 | 7 |
+
+
+```{r pressure, echo=FALSE}
+# --------| Ejercicio 1 |--------
+
+poblacion <- c(29.66, 7.61, 6.35, 4.10, 3.8, 2.75, 2.70, 2.69, 2.51, 2.44,
+               77.81, 35.50, 24.79, 20.02, 16.70, 9.39, 9.38, 8.76, 7.63, 7.5,
+               8.68, 7.31, 6.02, 2.64, 1.75, 1.72, 1.51, 1.42, 1.31, 1.29,
+               110.21, 32.14, 18.88, 16.38, 13.37, 11.92, 10.71, 7.8, 7.7, 7);
+
+paises <- c("Argentina", "Argentina", "Argentina", "Argentina", "Argentina", "Argentina",
+            "Argentina", "Argentina", "Argentina", "Argentina", "EE.UU", "EE.UU", "EE.UU",
+            "EE.UU", "EE.UU", "EE.UU", "EE.UU", "EE.UU", "EE.UU", "EE.UU", "Holanda", "Holanda",
+            "Holanda", "Holanda", "Holanda", "Holanda", "Holanda", "Holanda", "Holanda", "Holanda",
+            "Japón", "Japón", "Japón", "Japón", "Japón", "Japón", "Japón", "Japón", "Japón", "Japón");
+```
+
+```{r}
+bplot = boxplot(poblacion~paises, main = 'Población de ciudades por país en el año 1967', xlab = "Paises", ylab = "Población", col = "green",
+        border = "red");
+mediageneral = tapply(poblacion, paises, mean); mediageneral
+
+xi <-  seq(bplot$n)
+points(xi, mediageneral, col = 'blue', pch=18);
+desviacionEstandar = tapply(poblacion, paises, sd); 
+desviacionEstandar
+
+```
+
+Justificación:
+ A) Se observa que existen valores atípicos en cada pais (1 por país), excepto los Países Bajos, donde se evidencia agrupacion de datos entre el T1 y el T3 (50 %).
+ En Japón, la mediana está en el centro de la caja, lo que indica que la distribucion es simetrica. Por otra parte, Argentina muestra una asimetría negativa dado que la parte más larga de la caja está por encima de la mediana. Holanda tiene una inclinacion positiva, que también utiliza.
+
+B) Se puede concluir que en el caso de Japón y Holanda, son los paises con los datos más dispersos; tambien se puede resaltar queHolanda no tiene valores atípicos.
+
+
+## 2. Avianca se encuentra estudiando la situación de venta de puesto en el vuelo Armenia – Bogotá puesto que ha identificado que el 2% de las personas que reservaron puesto, no se presentan a la hora del embarque. Teniendo en cuenta que el avión A320 utilizado en esta ruta tiene una capacidad para 180 pasajeros, la empresa decide vender 181 tiquetes. ¿Cuál es la probabilidad de que todas las personas que llegan a embarque puedan tener su silla asegurada y no se presenten quejas por “sobre-vender” sillas ante la aeronáutica civil? Asuma que las llegadas de los pasajeros siguen una distribución Poisson.
+  
+```{r}
+
+#x = numero de pasajeros / vuelo
+#p(x<=180)
+#2% no se presentan -> 3.6 personas (promedio de personas que no se presenta al vuelvo)
+#98% se presentan -> 176.4 personas
+1 - sum(dpois (0:180, 176.4))
+plot(0:180, dpois (0:180, 176.4))
+```
+```{r}
+porcentaje <-1 - sum(dpois (0:180, 176.4))
+porcentaje
+#Para el caso, porcentaje es igual a 0.3744755
+```
+Por lo tanto, existe un 0.37 % de probabilidad de que lleguen todas las personas al embarque y optengan su silla y a su vez, que no se presenten quejas por "sobre vender" sillas.
+
+## 3. En la planta envasadora de Coca-Cola FEMSA ubicada en Tocancipá se realiza el embotellado de la CocaCola presentación de 400 mL (en promedio), con una desviación estándar de 5 mL (mililitros). Si se sabe por experiencia que este proceso de embotellado sigue una distribución normal, y también se sabe que todo producto con más de 415 mL es declarado como NO CONFORME. Determine el porcentaje de las botellas de gaseosa que son declaradas producto NO CONFORME.
+
+
+```{r}
+
+# 400ml = Media
+# 5ml = Desviación estandar
+
+# Distribución Normal
+
+# 415ml = No conforme
+# X = Númeo de botellas no conformes
+# P(X > 415) = 1 - P(X <= 415)
+probNoConforme <- 1 - pnorm(415, mean = 400, sd = 5);
+porcentajeNoConforme<-probNoConforme*100;
+porcentajeNoConforme
+```
+Por lo tanto, el porcentaje de las botellas de Coca-Cola FEMSA son declaradas producto NO CONFORME es de un 0.13% de probabibilidad.
+
+
 
